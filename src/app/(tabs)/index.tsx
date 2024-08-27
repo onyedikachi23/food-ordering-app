@@ -8,7 +8,7 @@ import { Text, View } from "@/src/components/Themed";
 export default function TabOneScreen() {
 	return (
 		<View style={styles.container}>
-			<Text style={styles.title}>Hello now</Text>
+			<Text style={styles.title}>Hello now running</Text>
 			<View
 				style={styles.separator}
 				lightColor="#eee"
