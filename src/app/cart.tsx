@@ -5,19 +5,30 @@ import React from "react";
 import { FlatList, Platform, StyleSheet, View } from "react-native";
 import { useCart } from "../context-providers/cart-provider";
 import CartListItem from "../components/cart-list-item";
+import Button from "../components/button";
+import { Text } from "../components/Themed";
 
 const CartScreen = () => {
-	const { items } = useCart();
+	const { items, total } = useCart();
 
 	return (
-		<View>
+		<View style={{ padding: 10 }}>
 			<FlatList
 				data={items}
 				renderItem={({ item }) => <CartListItem cartItem={item} />}
 				contentContainerStyle={{
-					padding: 10,
 					gap: 10,
 				}}></FlatList>
+
+			<Text
+				style={{
+					marginTop: 20,
+					fontSize: 20,
+					fontWeight: "500",
+				}}>
+				Total: ${total}
+			</Text>
+			<Button text="Checkout" />
 
 			<StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
 		</View>
