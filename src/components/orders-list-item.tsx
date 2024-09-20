@@ -10,7 +10,7 @@ import { Link, useSegments } from "expo-router";
 dayjs.extend(relativeTime);
 
 type OrderListItemProps = {
-	order: Order;
+	order: Tables<"orders">;
 };
 
 const OrderListItem = ({ order }: OrderListItemProps) => {
@@ -55,3 +55,4 @@ const styles = StyleSheet.create({
 
 export default OrderListItem;
 import { extend } from "dayjs";
+import { Tables } from "../database.types";

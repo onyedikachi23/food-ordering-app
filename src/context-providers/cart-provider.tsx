@@ -3,6 +3,9 @@
 import { randomUUID } from "expo-crypto";
 import { createContext, PropsWithChildren, useContext, useState } from "react";
 import { CartItem, Tables } from "../types";
+import { useInsertOrder } from "../api-hooks/orders";
+import { useRouter } from "expo-router";
+import { useInsertOrderItems } from "../api-hooks/order-items";
 
 type Product = Tables<"products">;
 
@@ -11,6 +14,7 @@ type CartType = {
 	addItem: (product: Product, size: CartItem["size"]) => void;
 	updateQuantity: (itemId: string, amount: 1 | -1) => void;
 	total: number;
+	checkout: () => void;
 };
 
 const CartContext = createContext<CartType>({
@@ -18,10 +22,15 @@ const CartContext = createContext<CartType>({
 	addItem: () => {},
 	updateQuantity: () => {},
 	total: 0,
+	checkout: () => {},
 });
 
 export default function CartProvider({ children }: PropsWithChildren) {
 	const [items, setItems] = useState<CartItem[]>([]);
+
+	const { mutate: insertOrder } = useInsertOrder();
+	const { mutate: insertOrderItems } = useInsertOrderItems();
+	const router = useRouter();
 
 	function addItem(product: Product, size: CartItem["size"]) {
 		const existItem = items.find(
@@ -63,6 +72,45 @@ export default function CartProvider({ children }: PropsWithChildren) {
 		0
 	);
 
+	function clearCart() {
+		setItems([]);
+	}
+
+	function checkout() {
+		insertOrder(
+			{ total },
+			{
+				onSuccess: saveOrderItems,
+			}
+		);
+	}
+
+	function saveOrderItems(order: Tables<"orders">) {
+		const orderItems = items.map((cartItem) => ({
+			order_id: order.id,
+			product_id: cartItem.product_id,
+			quantity: cartItem.quantity,
+			size: cartItem.size,
+		}));
+
+		/* 
+		insertOrderItems(
+			{
+				order_id: order.id,
+				product_id: item1.product_id,
+				quantity: item1.quantity,
+				size: item1.size,
+			},
+			{ */
+
+		insertOrderItems(orderItems, {
+			onSuccess() {
+				clearCart();
+				router.push(`/(user)/orders/${order.id}`);
+			},
+		});
+	}
+
 	return (
 		<CartContext.Provider
 			value={{
@@ -70,6 +118,7 @@ export default function CartProvider({ children }: PropsWithChildren) {
 				addItem,
 				updateQuantity,
 				total,
+				checkout,
 			}}>
 			{children}
 		</CartContext.Provider>

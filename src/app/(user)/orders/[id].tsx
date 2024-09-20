@@ -1,18 +1,23 @@
 /** @format */
 
-import orders from "@/assets/data/orders";
+import { useOrderDetails } from "@/src/api-hooks/orders";
 import OrderItemListItem from "@/src/components/order-item-list-item";
 import OrderListItem from "@/src/components/orders-list-item";
 import { Stack, useLocalSearchParams } from "expo-router";
-import { FlatList, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Text, View } from "react-native";
 
 export default function OrderDetailsScreen() {
-	const { id } = useLocalSearchParams();
+	const { id: idString } = useLocalSearchParams();
+	const id = parseInt(typeof idString === "string" ? idString : idString[0]);
 
-	const order = orders.find((order) => order.id.toString() === id);
+	const { data: order, isLoading, error } = useOrderDetails(id);
 
-	if (!order) {
-		return <Text>Not found</Text>;
+	if (isLoading) {
+		return <ActivityIndicator />;
+	}
+
+	if (error) {
+		return <Text>Failed to fetch</Text>;
 	}
 
 	return (
