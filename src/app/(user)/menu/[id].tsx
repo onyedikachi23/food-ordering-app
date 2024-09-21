@@ -3,6 +3,7 @@
 import { useProduct } from "@/src/api-hooks/products";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import Button from "@/src/components/button";
+import RemoteImage from "@/src/components/remoteImg";
 import { useCart } from "@/src/context-providers/cart-provider";
 import { PizzaSize } from "@/src/types";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -50,9 +51,10 @@ const ProductDetailsScreen = () => {
 	return (
 		<View style={styles.container}>
 			<Stack.Screen options={{ title: product?.name }} />
-			<Image
+			<RemoteImage
 				style={styles.image}
-				source={{ uri: product.image || defaultPizzaImage }}
+				path={product?.image}
+				fallback={defaultPizzaImage}
 			/>
 
 			{/* size select section */}

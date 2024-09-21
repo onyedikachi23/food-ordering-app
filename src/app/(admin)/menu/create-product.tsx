@@ -9,10 +9,15 @@ import {
 import Button from "@/src/components/button";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import Colors from "@/src/constants/Colors";
+import { supabase } from "@/src/lib/supabase";
+import { decode } from "base64-arraybuffer";
+import { randomUUID } from "expo-crypto";
+import { readAsStringAsync } from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert, Image, StyleSheet, Text, TextInput, View } from "react-native";
+import * as FileSystem from "expo-file-system";
 
 const CreateProductScreen = () => {
 	const [name, setName] = useState("");
@@ -58,18 +63,19 @@ const CreateProductScreen = () => {
 		}
 	};
 
-	function onCreate() {
+	async function onCreate() {
 		if (!validateInput()) {
 			return;
 		}
-		console.log("creating product");
+
+		const imgPath = await uploadImage();
 
 		// save in the database
 		insertProduct(
 			{
 				name,
 				price: parseFloat(price),
-				image: selectedImage,
+				image: imgPath,
 			},
 			{
 				onSuccess: () => {
@@ -80,15 +86,16 @@ const CreateProductScreen = () => {
 		);
 	}
 
-	function onUpdate() {
+	async function onUpdate() {
 		if (!validateInput()) {
 			return;
 		}
-		console.log("Updating product");
+
+		const imgPath = await uploadImage();
 
 		// save in the database
 		updateProduct(
-			{ id, name, price: parseFloat(price), image: selectedImage },
+			{ id, name, price: parseFloat(price), image: imgPath },
 			{
 				onSuccess: () => {
 					resetFields();
@@ -155,6 +162,27 @@ const CreateProductScreen = () => {
 			]
 		);
 	}
+
+	const uploadImage = async () => {
+		if (!selectedImage?.startsWith("file://")) {
+			return;
+		}
+
+		const imgAsBase64 = await FileSystem.readAsStringAsync(selectedImage, {
+			encoding: "base64",
+		});
+		const filePath = `${randomUUID()}.png`;
+		const contentType = "image";
+		const { data, error } = await supabase.storage
+			.from("product-images")
+			.upload(filePath, decode(imgAsBase64), { contentType });
+
+		console.log(error);
+
+		if (data) {
+			return data.path;
+		}
+	};
 
 	return (
 		<View style={styles.container}>
