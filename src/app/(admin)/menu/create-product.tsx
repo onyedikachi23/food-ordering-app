@@ -172,7 +172,7 @@ const CreateProductScreen = () => {
 			encoding: "base64",
 		});
 		const filePath = `${randomUUID()}.png`;
-		const contentType = "image";
+		const contentType = "image/png";
 		const { data, error } = await supabase.storage
 			.from("product-images")
 			.upload(filePath, decode(imgAsBase64), { contentType });

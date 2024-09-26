@@ -21,7 +21,7 @@ const SignUpScreen = () => {
 		});
 
 		if (error) {
-			Alert.alert(error.message);
+			console.warn(error);
 		}
 
 		setLoading(false);
