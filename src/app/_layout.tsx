@@ -16,6 +16,7 @@ import { useColorScheme } from "@/src/components/useColorScheme";
 import CartProvider from "../context-providers/cart-provider";
 import AuthProvider from "../context-providers/auth-provider";
 import QueryProvider from "../context-providers/query-provider";
+import { StripeProvider } from "@stripe/stripe-react-native";
 
 export {
 	// Catch any errors thrown by the Layout component.
@@ -60,33 +61,38 @@ function RootLayoutNav() {
 	return (
 		<ThemeProvider
 			value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-			<AuthProvider>
-				<QueryProvider>
-					<CartProvider>
-						<Stack>
-							<Stack.Screen
-								name="(admin)"
-								options={{ headerShown: false }}
-							/>
-							<Stack.Screen
-								name="(user)"
-								options={{ headerShown: false }}
-							/>
-							<Stack.Screen
-								name="(auth)"
-								options={{ headerShown: false }}
-							/>
+			<StripeProvider
+				publishableKey={
+					process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
+				}>
+				<AuthProvider>
+					<QueryProvider>
+						<CartProvider>
+							<Stack>
+								<Stack.Screen
+									name="(admin)"
+									options={{ headerShown: false }}
+								/>
+								<Stack.Screen
+									name="(user)"
+									options={{ headerShown: false }}
+								/>
+								<Stack.Screen
+									name="(auth)"
+									options={{ headerShown: false }}
+								/>
 
-							<Stack.Screen
-								name="cart"
-								options={{
-									presentation: "containedModal",
-								}}
-							/>
-						</Stack>
-					</CartProvider>
-				</QueryProvider>
-			</AuthProvider>
+								<Stack.Screen
+									name="cart"
+									options={{
+										presentation: "containedModal",
+									}}
+								/>
+							</Stack>
+						</CartProvider>
+					</QueryProvider>
+				</AuthProvider>
+			</StripeProvider>
 		</ThemeProvider>
 	);
 }

@@ -6,6 +6,7 @@ import { CartItem, Tables } from "../types";
 import { useInsertOrder } from "../api-hooks/orders";
 import { useRouter } from "expo-router";
 import { useInsertOrderItems } from "../api-hooks/order-items";
+import initializePaymentSheet, { openPaymentSheet } from "../lib/stripe";
 
 type Product = Tables<"products">;
 
@@ -76,7 +77,12 @@ export default function CartProvider({ children }: PropsWithChildren) {
 		setItems([]);
 	}
 
-	function checkout() {
+	async function checkout() {
+		await initializePaymentSheet(Math.floor(total * 100));
+
+		const payed = await openPaymentSheet();
+		if (!payed) return;
+
 		insertOrder(
 			{ total },
 			{
