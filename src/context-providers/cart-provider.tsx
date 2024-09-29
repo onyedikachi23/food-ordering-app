@@ -6,7 +6,7 @@ import { CartItem, Tables } from "../types";
 import { useInsertOrder } from "../api-hooks/orders";
 import { useRouter } from "expo-router";
 import { useInsertOrderItems } from "../api-hooks/order-items";
-import initializePaymentSheet, { openPaymentSheet } from "../lib/stripe";
+import { openPaymentSheet, initializePaymentSheet } from "../lib/stripe";
 
 type Product = Tables<"products">;
 
